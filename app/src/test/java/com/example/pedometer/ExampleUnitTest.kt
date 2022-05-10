@@ -15,3 +15,11 @@ class ExampleUnitTest {
         assertEquals(4, 2 + 2)
     }
 }
+
+class TimeTest {
+    @Test
+    fun printDate() {
+        println(getYesterdayDate())
+        println(getCurrentDate())
+    }
+}

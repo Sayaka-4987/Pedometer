@@ -26,14 +26,19 @@ import androidx.core.app.ActivityCompat
 import com.example.pedometer.ui.theme.*
 
 class MainActivity : ComponentActivity() {
+    private val dbHelper = StepDBHelper(this)
+
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         openStepService()   // 开启服务
         // 申请权限
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1)
+        // showAllData(dbHelper)   // DEBUG: 展示全部历史数据
         super.onCreate(savedInstanceState)
         setContent {
             PedometerTheme {
+                queryLatestData(dbHelper)       // 更新累积步数
+                queryYesterdayData(dbHelper)    // 更新今日步数
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background) {
@@ -41,6 +46,13 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onDestroy() {
+        insertStepData(dbHelper)    // 写入步数数据
+        dbHelper.close()
+        super.onDestroy()
     }
 
     // 开启计步 Service 的函数
@@ -74,13 +86,13 @@ fun StepsCountDisplay() {
                 contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "今日步数", fontSize = 24.sp)
-                    Text(text = "${Statics.CumulativeSteps}",   // 显示长度上限 5 位数
+                    Text(text = "${Statics.CumulativeSteps - Statics.YesterdaySteps}",   // 显示长度上限 5 位数
                         fontSize = 84.sp,
                         textAlign = TextAlign.Center,
                         //modifier = Modifier.align(Alignment.Center),
                         maxLines = 1)
                     Spacer(modifier = Modifier.height(dp8))
-                    Text(text = "本次开机累积步数: ${Statics.CumulativeSteps}",
+                    Text(text = "历史累积步数: ${Statics.CumulativeSteps}",
                         color = Color.Black.copy(0.6f))
                 }
             }
