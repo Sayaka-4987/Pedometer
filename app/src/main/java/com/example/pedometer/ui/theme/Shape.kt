@@ -10,7 +10,11 @@ val Shapes = Shapes(
     large = RoundedCornerShape(0.dp)
 )
 
-val min_dp4 = 4.dp
-val smaller_dp8 = 8.dp
-val medium_dp12 = 12.dp
-val icons_dp32 = 32.dp
+val dp4 = 4.dp
+val dp8 = 8.dp
+val dp12 = 12.dp
+val dp24 = 12.dp
+val dp32 = 32.dp
+val dp36 = 36.dp
+val dp64 = 64.dp
+val dp128 = 128.dp
