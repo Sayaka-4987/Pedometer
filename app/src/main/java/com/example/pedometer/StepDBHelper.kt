@@ -101,7 +101,7 @@ fun queryYesterdayData(dbHelper: StepDBHelper) {
     val projection = arrayOf(BaseColumns._ID, StepColumn.COLUMN_TOTAL_STEPS)    // 返回主键和步数
     val selection = "${StepColumn.COLUMN_DATE} = ?"         // 选择日期等于昨天的行
     val selectionArgs = arrayOf(yesterday)
-    val order = "${BaseColumns._ID} DESC"    // 按主键排序
+    val order = "${StepColumn.COLUMN_TOTAL_STEPS} DESC"    // 按步数递减排序
 
     val cursor = db.query(
         StepColumn.TABLE_NAME,   // The table to query
@@ -126,12 +126,12 @@ fun queryYesterdayData(dbHelper: StepDBHelper) {
     Log.e("yesterdaySteps = ", "$yesterdaySteps")
 }
 
-// 重启以后用，查询历史最大步数，加到累积步数数据中
+// 重启以后用，查询历史最大累积步数，加到累积步数数据中
 fun queryLatestData(dbHelper: StepDBHelper) {
     val db = dbHelper.readableDatabase
     val projection = arrayOf(BaseColumns._ID, StepColumn.COLUMN_TOTAL_STEPS)    // 返回主键和步数
 
-    val order = "${BaseColumns._ID} DESC"    // 按主键排序
+    val order = "${StepColumn.COLUMN_TOTAL_STEPS} DESC"    // 按步数递减排序
 
     val cursor = db.query(
         StepColumn.TABLE_NAME,   // The table to query
@@ -146,7 +146,8 @@ fun queryLatestData(dbHelper: StepDBHelper) {
     var historySteps: Int = 0     // 没查到就当是 0
     with(cursor) {
         while (moveToNext()) {
-            historySteps = max(getInt(getColumnIndexOrThrow(StepColumn.COLUMN_TOTAL_STEPS)), historySteps)
+            historySteps = getInt(getColumnIndexOrThrow(StepColumn.COLUMN_TOTAL_STEPS))
+            break
         }
     }
     cursor.close()
