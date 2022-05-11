@@ -17,4 +17,5 @@ val dp24 = 12.dp
 val dp32 = 32.dp
 val dp36 = 36.dp
 val dp64 = 64.dp
+val dp96 = 96.dp
 val dp128 = 128.dp

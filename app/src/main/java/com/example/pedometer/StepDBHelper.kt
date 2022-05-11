@@ -6,9 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Build
 import android.provider.BaseColumns
-import android.util.Log
 import androidx.annotation.RequiresApi
-import java.lang.Integer.max
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -88,8 +86,8 @@ fun insertStepData(dbHelper: StepDBHelper) {
     }
     // Insert the new row, returning the primary key value of the new row
     val newRowId = db?.insert(StepColumn.TABLE_NAME, null, values)
-    Log.e("newRowId = ", "$newRowId")
-    Log.e("CumulativeSteps = ", "${Statics.CumulativeSteps}")
+    // Log.e("newRowId = ", "$newRowId")
+    // Log.e("CumulativeSteps = ", "${Statics.CumulativeSteps}")
 }
 
 // 查询上一天的最大步数
@@ -113,7 +111,7 @@ fun queryYesterdayData(dbHelper: StepDBHelper) {
         order
     )
 
-    var yesterdaySteps: Int = 0     // 没查到就当是 0
+    var yesterdaySteps = 0     // 没查到就当是 0
     with(cursor) {
         while (moveToNext()) {
             yesterdaySteps = getInt(getColumnIndexOrThrow(StepColumn.COLUMN_TOTAL_STEPS))
@@ -123,7 +121,7 @@ fun queryYesterdayData(dbHelper: StepDBHelper) {
     cursor.close()
     // 更新昨天的最后一次步数记录
     Statics.YesterdaySteps = yesterdaySteps
-    Log.e("yesterdaySteps = ", "$yesterdaySteps")
+    // Log.e("yesterdaySteps = ", "$yesterdaySteps")
 }
 
 // 重启以后用，查询历史最大累积步数，加到累积步数数据中
@@ -143,7 +141,7 @@ fun queryLatestData(dbHelper: StepDBHelper) {
         order
     )
 
-    var historySteps: Int = 0     // 没查到就当是 0
+    var historySteps = 0     // 没查到就当是 0
     with(cursor) {
         while (moveToNext()) {
             historySteps = getInt(getColumnIndexOrThrow(StepColumn.COLUMN_TOTAL_STEPS))
@@ -155,15 +153,12 @@ fun queryLatestData(dbHelper: StepDBHelper) {
     if (historySteps > Statics.CumulativeSteps) {
         Statics.CumulativeSteps += historySteps
     }
-    Log.e("historySteps = ", "$historySteps")
+    // Log.e("historySteps = ", "$historySteps")
 }
 
 fun showAllData(dbHelper: StepDBHelper) {
     val db = dbHelper.readableDatabase
-    val projection = arrayOf(BaseColumns._ID, StepColumn.COLUMN_TOTAL_STEPS)    // 返回主键和步数
-
     val order = "${BaseColumns._ID} DESC"    // 按主键排序
-
     val cursor = db.query(
         StepColumn.TABLE_NAME,   // The table to query
         null,              // The array of columns to return (pass null to get all)
@@ -173,13 +168,11 @@ fun showAllData(dbHelper: StepDBHelper) {
         null,             // don't filter by row groups
         order
     )
-
-    var historySteps: Int = 0     // 没查到就当是 0
     with(cursor) {
         while (moveToNext()) {
             val steps = getInt(getColumnIndexOrThrow(StepColumn.COLUMN_TOTAL_STEPS))
             val id = getLong(getColumnIndexOrThrow(BaseColumns._ID))
-            Log.e("id = $id", "steps = $steps")
+            // Log.e("id = $id", "steps = $steps")
         }
     }
     cursor.close()

@@ -12,4 +12,7 @@ val Teal200 = Color(0xFF03DAC5)
 val GreenM300 = Color(0xFFDCE775)
 val BlueM300 = Color(0xFF7986CB)
 
+val White09f = Color(0xFFEBF5F5)
+val White08f = Color(0xFFD7F5EB)
+
 val GreenBrush = Brush.linearGradient(colors = listOf(GreenM300, Teal200))
