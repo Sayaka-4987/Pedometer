@@ -27,6 +27,7 @@ import androidx.core.app.ActivityCompat
 import com.example.pedometer.ui.theme.*
 import kotlin.math.roundToInt
 
+
 class MainActivity : ComponentActivity() {
     private val dbHelper = StepDBHelper(this)
 
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
-        updateStatistics(dbHelper)  // 更新统计信息
+        updateStatistics(dbHelper)  // 自动更新统计信息
         super.onResume()
     }
 

@@ -17,7 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-
+// 全局变量统计
 object Statics {
     var CumulativeSteps by mutableStateOf(0)    // 开机以来的累计步数
     var YesterdaySteps by mutableStateOf(0)     // 昨日步数
@@ -51,8 +51,8 @@ class StepService: Service(), SensorEventListener {
         startForeground(startId, notification)   // 开启前台
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        counterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)    // 得到步数传感器
-        sensorManager.registerListener(this, counterSensor, 60000)     // 绑定监听每分钟一次
+        counterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)                // 得到步数传感器
+        sensorManager.registerListener(this, counterSensor, 60000)    // 绑定监听每分钟一次
         return START_STICKY     // 系统资源充裕就自动恢复服务
     }
 
