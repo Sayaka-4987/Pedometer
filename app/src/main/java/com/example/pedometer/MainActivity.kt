@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -20,7 +21,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -33,23 +33,34 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         openStepService()   // 开启服务
-        ActivityCompat.requestPermissions(
-            this, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+        ActivityCompat.requestPermissions (
+            this,
+            arrayOf(Manifest.permission.ACTIVITY_RECOGNITION,   // 健身动作
+                Manifest.permission.BODY_SENSORS),              // 身体传感器
             1
         )   // 申请权限
         super.onCreate(savedInstanceState)
-        // showAllData(dbHelper)   // DEBUG: 展示全部历史数据
         setContent {
             PedometerTheme {
-                queryLatestData(dbHelper)       // 自动更新累积步数
-                queryYesterdayData(dbHelper)    // 自动更新今日步数
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background) {
-                    MainScreen()
+                    MainScreen(dbHelper)
                 }
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onResume() {
+        updateStatistics(dbHelper)  // 更新统计信息
+        super.onResume()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onStop() {
+        insertStepData(dbHelper)    // 写入步数数据
+        super.onStop()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -68,16 +79,19 @@ class MainActivity : ComponentActivity() {
 }
 
 // 主界面步数显示
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun StepsCountDisplay() {
+fun StepsCountDisplay(dbHelper: StepDBHelper) {
     Box(
         modifier = Modifier
-            .padding(start = dp36, end = dp36, top = dp96)
+            .padding(top = dp96)
             .size(320.dp)
             .shadow(elevation = dp12, shape = CircleShape)
             .clip(CircleShape)  // 指定为圆形
             .background(color = White)
-            .clickable { },
+            .clickable {
+                updateStatistics(dbHelper)  // 点击手动更新统计信息
+            },
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -147,7 +161,6 @@ fun FoodConsumptionDisplay() {
     }
 }
 
-
 // 计算以上食物相当于多少热量，返回字符串
 fun foodCalculator(): String {
     // 热量信息由麦当劳官网提供
@@ -174,7 +187,7 @@ fun foodCalculator(): String {
     val heat = (0.04 * (Statics.CumulativeSteps - Statics.YesterdaySteps)).roundToInt()
     for (i in heatList.indices) {
         val foodHeat = heatList[i]
-        // Log.e("foodHeat", "HeatList[i] = ${foodHeat}, Heat = ${heat}, i = $i")
+        Log.i("com.example.pedometer", "HeatList[i] = ${foodHeat}, Heat = ${heat}, i = $i")
         if (heat < foodHeat) {
             continue
         } else {
@@ -187,13 +200,14 @@ fun foodCalculator(): String {
     return "0个苹果\uD83C\uDF4F"
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainScreen() {
+fun MainScreen(dbHelper: StepDBHelper) {
     Column(modifier = Modifier
         .background(brush = GreenBrush)  // 界面背景
         .fillMaxSize()) {
-        Row(modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally)) {
-            StepsCountDisplay()
+        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            StepsCountDisplay(dbHelper)
         }
         Spacer(modifier = Modifier.height(dp12))
         Row(modifier = Modifier.align(Alignment.End)) {
@@ -205,6 +219,14 @@ fun MainScreen() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+fun updateStatistics(dbHelper: StepDBHelper) {
+    queryLatestData(dbHelper)       // 自动更新累积步数
+    queryYesterdayData(dbHelper)    // 自动更新今日步数
+    showAllData(dbHelper)           // DEBUG: 展示全部历史数据
+}
+
+/*
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
@@ -212,3 +234,4 @@ fun DefaultPreview() {
         MainScreen()
     }
 }
+*/
